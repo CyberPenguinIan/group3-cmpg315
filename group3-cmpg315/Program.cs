@@ -16,7 +16,7 @@ namespace group3_cmpg315
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new lblContacts());
+            Application.Run(new frmChat());
         }
     }
 }

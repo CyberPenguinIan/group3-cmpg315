@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace group3_cmpg315
 {
-    public partial class lblContacts : Form
+    public partial class frmChat : Form
     {
-        public lblContacts()
+        public frmChat()
         {
             InitializeComponent();
         }
