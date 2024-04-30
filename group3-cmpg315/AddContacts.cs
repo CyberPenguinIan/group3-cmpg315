@@ -10,17 +10,11 @@ using System.Windows.Forms;
 
 namespace group3_cmpg315
 {
-    public partial class lblContacts : Form
+    public partial class AddContacts : Form
     {
-        public lblContacts()
+        public AddContacts()
         {
             InitializeComponent();
-        }
-
-        private void btnAddContact_Click(object sender, EventArgs e)
-        {
-            AddContacts f2 = new AddContacts();
-            f2.Show();
         }
     }
 }
