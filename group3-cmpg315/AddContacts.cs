@@ -16,5 +16,21 @@ namespace group3_cmpg315
         {
             InitializeComponent();
         }
+
+        private void txtNewName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnCreateContact_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Contact Added");
+            this.Visible = false;
+        }
+
+        private void btnCancelNew_Click(object sender, EventArgs e)
+        {
+            this.Visible = false;
+        }
     }
 }

@@ -60,6 +60,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddContacts.resx">
+      <DependentUpon>AddContacts.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmChat.resx">
       <DependentUpon>frmChat.cs</DependentUpon>
     </EmbeddedResource>
