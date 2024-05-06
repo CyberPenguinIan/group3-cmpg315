@@ -52,6 +52,7 @@
     <Compile Include="AddContacts.Designer.cs">
       <DependentUpon>AddContacts.cs</DependentUpon>
     </Compile>
+    <Compile Include="P2PServer.cs" />
     <Compile Include="frmChat.cs">
       <SubType>Form</SubType>
     </Compile>
