@@ -173,6 +173,8 @@
             this.txtMessageToSend.Text = "Type your message here...";
             this.txtMessageToSend.Click += new System.EventHandler(this.txtMessageToSend_Click);
             this.txtMessageToSend.Leave += new System.EventHandler(this.txtMessageToSend_Leave);
+            this.txtMessageToSend.MouseEnter += new System.EventHandler(this.txtMessageToSend_MouseEnter);
+            this.txtMessageToSend.MouseLeave += new System.EventHandler(this.txtMessageToSend_MouseLeave);
             // 
             // btnSendMessage
             // 

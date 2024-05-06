@@ -39,22 +39,40 @@ namespace group3_cmpg315
             lblUserName.Text = Globals.hostName;//setting username to hostname
             Console.WriteLine(Globals.IP);
 
+            lblChatRecip.Text = String.Empty;
+
+            txtMessageToSend.ForeColor = Color.DarkGray;
+
         }
 
 
         private void txtMessageToSend_Click(object sender, EventArgs e)
         {
             txtMessageToSend.Text = String.Empty;//empties text box on click
+            txtMessageToSend.ForeColor = Color.White;
         }
 
         private void txtMessageToSend_Leave(object sender, EventArgs e)
         {
             txtMessageToSend.Text = "Type your message here...";//setting texbox back to original state
+            txtMessageToSend.ForeColor = Color.DarkGray;
         }
 
         private void frmChat_Shown(object sender, EventArgs e)
         {
             MessageBox.Show("WELCOME "+Globals.hostName);
         }
+
+        private void txtMessageToSend_MouseEnter(object sender, EventArgs e)
+        {
+            txtMessageToSend.ForeColor = Color.White;
+        }
+
+        private void txtMessageToSend_MouseLeave(object sender, EventArgs e)
+        {
+            txtMessageToSend.ForeColor = Color.DarkGray;
+        }
+
+        
     }
 }
