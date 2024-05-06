@@ -11,13 +11,7 @@ using System.Windows.Forms;
 
 namespace group3_cmpg315
 {
-    public static class Globals//creating global var class
-    {
-        public static string hostName = Dns.GetHostName(); //accessing hostname
-        [Obsolete]
-        public static string IP = Dns.GetHostByName(hostName).AddressList[0].ToString(); //accessing IP-address of hostname
-        
-    }
+   
     
     public partial class frmChat : Form
     {
@@ -51,5 +45,12 @@ namespace group3_cmpg315
         {
             txtMessageToSend.Text = "Type your message here...";//setting texbox back to original state
         }
+    }
+    public static class Globals//creating global var class
+    {
+        public static string hostName = Dns.GetHostName(); //accessing hostname
+        [Obsolete]
+        public static string IP = Dns.GetHostByName(hostName).AddressList[0].ToString(); //accessing IP-address of hostname
+
     }
 }
