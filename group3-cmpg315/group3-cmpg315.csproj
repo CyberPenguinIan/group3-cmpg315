@@ -52,7 +52,9 @@
     <Compile Include="AddContacts.Designer.cs">
       <DependentUpon>AddContacts.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmChat.cs" />
+    <Compile Include="frmChat.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmChat.Designer.cs">
       <DependentUpon>frmChat.cs</DependentUpon>
     </Compile>

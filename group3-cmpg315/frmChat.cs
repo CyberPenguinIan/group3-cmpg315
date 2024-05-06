@@ -11,20 +11,20 @@ using System.Windows.Forms;
 
 namespace group3_cmpg315
 {
-    public static class Globals//creating global var class
-    {
-        public static string hostName = Dns.GetHostName(); //accessing hostname
-        [Obsolete]
-        public static string IP = Dns.GetHostByName(hostName).AddressList[0].ToString(); //accessing IP-address of hostname
-        
-    }
-    
     public partial class frmChat : Form
     {
         [Obsolete]
         public frmChat()
         {
             InitializeComponent();
+        }
+
+        public static class Globals//creating global var class
+        {
+            public static string hostName = Dns.GetHostName(); //accessing hostname
+            [Obsolete]
+            public static string IP = Dns.GetHostByName(hostName).AddressList[0].ToString(); //accessing IP-address of hostname
+
         }
 
         private void btnAddContact_Click(object sender, EventArgs e)
@@ -34,7 +34,7 @@ namespace group3_cmpg315
         }
 
         [Obsolete]
-        private void FrmChat_Load(object sender, EventArgs e)
+        private void frmChat_Load(object sender, EventArgs e)
         {
             lblUserName.Text = Globals.hostName;//setting username to hostname
             Console.WriteLine(Globals.IP);
@@ -50,6 +50,11 @@ namespace group3_cmpg315
         private void txtMessageToSend_Leave(object sender, EventArgs e)
         {
             txtMessageToSend.Text = "Type your message here...";//setting texbox back to original state
+        }
+
+        private void frmChat_Shown(object sender, EventArgs e)
+        {
+            MessageBox.Show("WELCOME "+Globals.hostName);
         }
     }
 }

@@ -202,7 +202,8 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "frmChat";
             this.Text = "Chat";
-            this.Load += new System.EventHandler(this.FrmChat_Load);
+            this.Load += new System.EventHandler(this.frmChat_Load);
+            this.Shown += new System.EventHandler(this.frmChat_Shown);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvContacts)).EndInit();
