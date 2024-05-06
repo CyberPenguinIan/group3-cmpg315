@@ -167,6 +167,7 @@ namespace group3_cmpg315
             this.Controls.Add(this.label1);
             this.Name = "AddContacts";
             this.Text = "Add Contacts";
+            this.Load += new System.EventHandler(this.AddContacts_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);

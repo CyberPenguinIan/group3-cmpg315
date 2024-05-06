@@ -20,7 +20,7 @@ namespace group3_cmpg315
             InitializeComponent();
 
             // Set up the database connection
-            string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\xande\\source\\repos\\CyberPenguinIan\\group3-cmpg315\\group3-cmpg315\\Database1.mdf;Integrated Security=True";
+            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\dbMessage.mdf;Integrated Security=True";
             connection = new SqlConnection(connectionString);
         }
 
@@ -44,12 +44,18 @@ namespace group3_cmpg315
             connection.Close();
 
             MessageBox.Show("Contact Added");
-            
+            this.Visible = false;
+
         }
 
         private void btnCancelNew_Click(object sender, EventArgs e)
         {
             this.Visible = false;
+        }
+
+        private void AddContacts_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

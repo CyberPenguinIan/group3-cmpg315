@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Data.SqlClient;
+using System.Drawing;
 using System.Net;
+using System.Windows.Forms;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,15 +11,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Data.SqlClient;
 
 namespace group3_cmpg315
 {
     public partial class frmChat : Form
     {
+        private SqlConnection connection;
+
         [Obsolete]
         public frmChat()
         {
             InitializeComponent();
+
+            // Set up the database connection
+            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\dbMessage.mdf;Integrated Security=True";
+            connection = new SqlConnection(connectionString);
         }
 
         public static class Globals//creating global var class
@@ -36,13 +46,20 @@ namespace group3_cmpg315
         [Obsolete]
         private void frmChat_Load(object sender, EventArgs e)
         {
-            lblUserName.Text = Globals.hostName;//setting username to hostname
-            Console.WriteLine(Globals.IP);
+            // Add columns to dgvContacts
+            dgvContacts.Columns.Add("UserName", "User Name");
 
-            lblChatRecip.Text = String.Empty;
-
-            txtMessageToSend.ForeColor = Color.DarkGray;
-
+            // Populate dgvContacts with the names from the table
+            string query = "SELECT User_name FROM tblMessage";
+            SqlCommand command = new SqlCommand(query, connection);
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                dgvContacts.Rows.Add(reader["User_name"].ToString());
+            }
+            reader.Close();
+            connection.Close();
         }
 
 
@@ -60,7 +77,7 @@ namespace group3_cmpg315
 
         private void frmChat_Shown(object sender, EventArgs e)
         {
-            MessageBox.Show("WELCOME "+Globals.hostName);
+            MessageBox.Show("WELCOME " + Globals.hostName);
         }
 
         private void txtMessageToSend_MouseEnter(object sender, EventArgs e)
@@ -73,6 +90,5 @@ namespace group3_cmpg315
             txtMessageToSend.ForeColor = Color.DarkGray;
         }
 
-        
     }
 }
