@@ -173,6 +173,8 @@
             this.txtMessageToSend.Text = "Type your message here...";
             this.txtMessageToSend.Click += new System.EventHandler(this.txtMessageToSend_Click);
             this.txtMessageToSend.Leave += new System.EventHandler(this.txtMessageToSend_Leave);
+            this.txtMessageToSend.MouseEnter += new System.EventHandler(this.txtMessageToSend_MouseEnter);
+            this.txtMessageToSend.MouseLeave += new System.EventHandler(this.txtMessageToSend_MouseLeave);
             // 
             // btnSendMessage
             // 
@@ -202,7 +204,8 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "frmChat";
             this.Text = "Chat";
-            this.Load += new System.EventHandler(this.FrmChat_Load);
+            this.Load += new System.EventHandler(this.frmChat_Load);
+            this.Shown += new System.EventHandler(this.frmChat_Shown);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvContacts)).EndInit();
