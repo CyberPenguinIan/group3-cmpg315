@@ -181,6 +181,7 @@ namespace group3_cmpg315
         private void frmChat_Shown(object sender, EventArgs e)
         {
             MessageBox.Show("WELCOME " + Globals.hostName);
+            MessageBox.Show("YOUR CURRENT IP ADDRESS IS: " + Globals.IP);
         }
 
         private void frmChat_FormClosing(object sender, FormClosingEventArgs e)
