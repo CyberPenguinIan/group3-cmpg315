@@ -130,5 +130,12 @@ namespace group3_cmpg315
                 lbxMsgLog.Items.Add(message);
             }
         }
+
+        private void btnSendMessage_Click(object sender, EventArgs e)
+        {
+            P2PServer server = new P2PServer("127.0.0.1", 11000);
+            //dummy value 
+            server.SendMessage("127.0.0.1", 11001, txtMessageToSend.Text);
+        }
     }
 }
