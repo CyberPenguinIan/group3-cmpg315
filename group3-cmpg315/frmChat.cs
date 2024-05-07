@@ -12,6 +12,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace group3_cmpg315
 {
@@ -28,6 +30,69 @@ namespace group3_cmpg315
             string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\dbMessage.mdf;Integrated Security=True";
             connection = new SqlConnection(connectionString);
         }
+
+        private bool connected = false;
+        private bool gConnected = false;
+        private bool ptpConnected = false;
+
+        private TcpClient clientSocket;
+        private Thread receiveThread;
+
+        string p2pIP = string.Empty;
+        string username = string.Empty;
+        string userIP = string.Empty;
+
+        //connection methon
+        public bool Connect(string serverIP, int serverPort)
+        {
+            try
+            {
+                if (!connected)
+                {
+                    // Connecting to server
+                    clientSocket = new TcpClient();
+                    clientSocket.Connect(serverIP, serverPort);
+                    connected = true;
+
+                    Console.WriteLine("Connected to server {0}:{1}", serverIP, serverPort);
+
+                    return true; // Connection successful
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return false;
+            }
+
+            return false;
+        }
+
+        //disconnection method
+        public void Disconnect()
+        {
+            if (connected)
+            {
+                try
+                {
+                    // disconnecting from sockets.
+                    clientSocket.GetStream().Close();
+                    clientSocket.Close();
+                    clientSocket = null;
+                    receiveThread.Join();
+                    connected = false;
+                    ptpConnected = false;
+                    gConnected = false;
+
+                    Console.WriteLine("Disconnected from the server");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message);
+                }
+            }
+        }
+
 
         public static class Globals//creating global var class
         {
@@ -46,6 +111,8 @@ namespace group3_cmpg315
         [Obsolete]
         private void frmChat_Load(object sender, EventArgs e)
         {
+            
+
             // Add columns to dgvContacts
             dgvContacts.Columns.Add("UserName", "User Name");
 
@@ -77,7 +144,15 @@ namespace group3_cmpg315
 
         private void frmChat_Shown(object sender, EventArgs e)
         {
+
             MessageBox.Show("WELCOME " + Globals.hostName);
+            //connecting to p2p server
+            if (Connect("35.194.95.129", 56556))
+            {
+                ptpConnected = true;
+                MessageBox.Show("Successfully Connected to Peer to Peer server");
+            }
+            else MessageBox.Show("The Peer to peer server is offline");
         }
 
         private void txtMessageToSend_MouseEnter(object sender, EventArgs e)
@@ -90,5 +165,20 @@ namespace group3_cmpg315
             txtMessageToSend.ForeColor = Color.DarkGray;
         }
 
+        private void frmChat_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // disconnecting from p2p server
+            try
+            {
+                Disconnect();
+                MessageBox.Show("Disconnected from peer to peer server successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("error detected: " + ex);
+            }
+            
+
+        }
     }
 }

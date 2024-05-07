@@ -308,10 +308,10 @@ namespace P2PServer
             // If the client is null or not connected, return null
             return null;
         }
-
-        /*static void Main()
+        /*
+        static void Main()
         {
-            int port = 32332; // Replace with the desired port number
+            int port = 56556; // Replace with the desired port number
             PeerToPeerServer server = new PeerToPeerServer();
             server.Start(port);
 

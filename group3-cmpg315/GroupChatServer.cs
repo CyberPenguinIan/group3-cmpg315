@@ -179,10 +179,10 @@ namespace GroupServ
                 catch (Exception ex) { Console.WriteLine($"Error: {ex.Message}"); }
             }
         }
-
-        /*static void Main()
+        /*
+        static void Main()
         {
-            int port = 23223; // Replace with the desired port number
+            int port = 65665; // Replace with the desired port number
             GroupServer server = new GroupServer();
             server.Start(port);
 
