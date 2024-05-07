@@ -1,43 +1,47 @@
 ﻿using System;
 using System.Data;
-using System.Data.SQLite;//this should work
+using System.Data.SQLite;
 using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace group3_cmpg315
 {
-    // Class to hold global variables
-    
-
     public partial class frmChat : Form
     {
-        
+
         private const string connectionString = "Data Source=chat.db;Version=3;";
-        
-        
+
+
         private const string dbFilePath = "chat.db";
 
         [Obsolete]
         public frmChat()
         {
             InitializeComponent();
+            dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
         }
 
         public static class Globals
         {
             public static string hostName = Dns.GetHostName();
             public static string IP = Dns.GetHostByName(hostName).AddressList[0].ToString();
-            
+            public static string SelectedContactIP { get; set; } 
+            public static string SelectedContactPort { get; set; }
         }
 
         private void frmChat_Load(object sender, EventArgs e)
         {
-            Console.WriteLine("User_IP-Address: "+ Globals.IP);
+            Console.WriteLine("User_IP-Address: " + Globals.IP);
             lblUserName.Text = Globals.hostName;
             lblChatRecip.Text = string.Empty;
+            dgvContacts.Enabled = true;
+            dgvContacts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
+
 
             txtMessageToSend.ForeColor = Color.DarkGray;
             try
@@ -67,6 +71,19 @@ namespace group3_cmpg315
             }
         }
 
+        private void DisplaySelectedContact()
+        {
+            if (!string.IsNullOrEmpty(Globals.SelectedContactIP) && !string.IsNullOrEmpty(Globals.SelectedContactPort))
+            {
+                Console.WriteLine($"Selected Contact IP: {Globals.SelectedContactIP}, Port: {Globals.SelectedContactPort}");
+            }
+            else
+            {
+                Console.WriteLine("No contact selected.");
+            }
+        }
+
+
         private void CheckDatabaseExistence()
         {
             if (File.Exists(dbFilePath))
@@ -81,7 +98,7 @@ namespace group3_cmpg315
 
         private void PopulateDataGridView()
         {
-            string query = "SELECT User_Name FROM Contacts;";
+            string query = "SELECT User_Name, IP_Address, Port FROM Contacts;";
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
@@ -90,9 +107,14 @@ namespace group3_cmpg315
                     DataTable dataTable = new DataTable();
                     adapter.Fill(dataTable);
                     dgvContacts.DataSource = dataTable;
+
+                    dgvContacts.Columns["User_Name"].HeaderText = "User Name";
+                    dgvContacts.Columns["IP_Address"].HeaderText = "IP Address";
+                    dgvContacts.Columns["Port"].HeaderText = "Port";
                 }
             }
         }
+
 
 
         private void CreateDatabase()
@@ -117,7 +139,7 @@ namespace group3_cmpg315
             }
         }
 
-        private void PrintAllContacts()
+        public void PrintAllContacts()
         {
             string query = "SELECT * FROM Contacts;";
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -232,9 +254,25 @@ namespace group3_cmpg315
 
         private void btnAddContact_Click(object sender, EventArgs e)
         {
-            
+
             AddContacts addContactsForm = new AddContacts();
             addContactsForm.ShowDialog();
         }
+
+        private void dgvContacts_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvContacts.SelectedRows.Count > 0)
+            {
+                DataGridViewRow selectedRow = dgvContacts.SelectedRows[0];
+                string selectedContactIP = selectedRow.Cells["IP_Address"].Value.ToString();
+                string selectedContactPort = selectedRow.Cells["Port"].Value.ToString();
+                Console.WriteLine($"Selected Contact IP: {selectedContactIP}, Port: {selectedContactPort}");
+            }
+            else
+            {
+                Console.WriteLine("No contact selected.");
+            }
+        }
+
     }
 }
