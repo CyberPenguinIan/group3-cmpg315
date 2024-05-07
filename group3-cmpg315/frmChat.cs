@@ -29,10 +29,13 @@ namespace group3_cmpg315
         public static class Globals
         {
             public static string hostName = Dns.GetHostName();
+            public static string IP = Dns.GetHostByName(hostName).AddressList[0].ToString();
+            
         }
 
         private void frmChat_Load(object sender, EventArgs e)
         {
+            Console.WriteLine("User_IP-Address: "+ Globals.IP);
             lblUserName.Text = Globals.hostName;
             lblChatRecip.Text = string.Empty;
 
