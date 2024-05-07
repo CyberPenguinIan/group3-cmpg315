@@ -19,16 +19,13 @@ namespace group3_cmpg315
 {
     public partial class frmChat : Form
     {
-        private SqlConnection connection;
+        
 
         [Obsolete]
         public frmChat()
         {
             InitializeComponent();
 
-            // Set up the database connection
-            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\dbMessage.mdf;Integrated Security=True";
-            connection = new SqlConnection(connectionString);
         }
 
         private bool connected = false;
@@ -112,21 +109,6 @@ namespace group3_cmpg315
         private void frmChat_Load(object sender, EventArgs e)
         {
             
-
-            // Add columns to dgvContacts
-            dgvContacts.Columns.Add("UserName", "User Name");
-
-            // Populate dgvContacts with the names from the table
-            string query = "SELECT User_name FROM tblMessage";
-            SqlCommand command = new SqlCommand(query, connection);
-            connection.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                dgvContacts.Rows.Add(reader["User_name"].ToString());
-            }
-            reader.Close();
-            connection.Close();
         }
 
 
@@ -147,7 +129,7 @@ namespace group3_cmpg315
 
             MessageBox.Show("WELCOME " + Globals.hostName);
             //connecting to p2p server
-            if (Connect("35.194.95.129", 56556))
+            if (Connect("35.194.95.129", 31331))
             {
                 ptpConnected = true;
                 MessageBox.Show("Successfully Connected to Peer to Peer server");
@@ -168,16 +150,18 @@ namespace group3_cmpg315
         private void frmChat_FormClosing(object sender, FormClosingEventArgs e)
         {
             // disconnecting from p2p server
-            try
+            if (Connect("35.194.95.129", 31331))
             {
-                Disconnect();
-                MessageBox.Show("Disconnected from peer to peer server successfully");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("error detected: " + ex);
-            }
-            
+                try
+                {
+                    Disconnect();
+                    MessageBox.Show("Disconnected from peer to peer server successfully");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("error detected: " + ex);
+                }
+            }  
 
         }
     }
