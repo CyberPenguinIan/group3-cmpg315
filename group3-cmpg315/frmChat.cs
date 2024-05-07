@@ -261,6 +261,7 @@ namespace group3_cmpg315
 
         private void dgvContacts_SelectionChanged(object sender, EventArgs e)
         {
+            //werk in die if statement
             if (dgvContacts.SelectedRows.Count > 0)
             {
                 DataGridViewRow selectedRow = dgvContacts.SelectedRows[0];
