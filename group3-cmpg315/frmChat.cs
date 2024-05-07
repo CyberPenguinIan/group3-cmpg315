@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Drawing;
 using System.Net;
 using System.Windows.Forms;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Data.SqlClient;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -39,58 +29,6 @@ namespace group3_cmpg315
         string username = string.Empty;
         string userIP = string.Empty;
 
-        //connection methon
-        public bool Connect(string serverIP, int serverPort)
-        {
-            try
-            {
-                if (!connected)
-                {
-                    // Connecting to server
-                    clientSocket = new TcpClient();
-                    clientSocket.Connect(serverIP, serverPort);
-                    connected = true;
-
-                    Console.WriteLine("Connected to server {0}:{1}", serverIP, serverPort);
-
-                    return true; // Connection successful
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-                return false;
-            }
-
-            return false;
-        }
-
-        //disconnection method
-        public void Disconnect()
-        {
-            if (connected)
-            {
-                try
-                {
-                    // disconnecting from sockets.
-                    clientSocket.GetStream().Close();
-                    clientSocket.Close();
-                    clientSocket = null;
-                    receiveThread.Join();
-                    connected = false;
-                    ptpConnected = false;
-                    gConnected = false;
-
-                    Console.WriteLine("Disconnected from the server");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error: " + ex.Message);
-                }
-            }
-        }
-
-
         public static class Globals//creating global var class
         {
             public static string hostName = Dns.GetHostName(); //accessing hostname
@@ -108,7 +46,29 @@ namespace group3_cmpg315
         [Obsolete]
         private void frmChat_Load(object sender, EventArgs e)
         {
-            
+            lblUserName.Text = Globals.hostName;
+            lblChatRecip.Text = string.Empty;
+
+            txtMessageToSend.ForeColor = Color.DarkGray;
+            try
+            {
+                // Create an instance of the Server class
+                P2PServer server = new P2PServer("127.0.0.1", 11000);
+
+                // Start the server in a new thread
+                System.Threading.Thread serverThread = new System.Threading.Thread(() =>
+                {
+                    server.Start();
+                });
+                serverThread.Start();
+                MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
+                server.MessageReceived += P2PServer_MessageReceived;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("SERVER CONNECTION UNSUCCESSFUL");
+                Console.WriteLine(ex);
+            }
         }
 
 
@@ -126,16 +86,9 @@ namespace group3_cmpg315
 
         private void frmChat_Shown(object sender, EventArgs e)
         {
-
-            MessageBox.Show("WELCOME " + Globals.hostName);
-            //connecting to p2p server
-            if (Connect("35.194.95.129", 31331))
-            {
-                ptpConnected = true;
-                MessageBox.Show("Successfully Connected to Peer to Peer server");
-            }
-            else MessageBox.Show("The Peer to peer server is offline");
+            MessageBox.Show("WELCOME "+Globals.hostName);
         }
+
 
         private void txtMessageToSend_MouseEnter(object sender, EventArgs e)
         {
@@ -149,20 +102,33 @@ namespace group3_cmpg315
 
         private void frmChat_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // disconnecting from p2p server
-            if (Connect("35.194.95.129", 31331))
+            try
             {
-                try
+                P2PServer server = new P2PServer("127.0.0.1", 11000);
+                server.Stop();
+                MessageBox.Show("SERVER CONNECTION TERMINATED");
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("SERVER TERMINATION UNSUCCESSFUL");
+                Console.WriteLine(ex);
+            }
+           
+        }
+        public void P2PServer_MessageReceived(object sender, string message)
+        {
+            // Invoke on UI thread if needed
+            if (lbxMsgLog.InvokeRequired)
+            {
+                lbxMsgLog.Invoke(new Action(() =>
                 {
-                    Disconnect();
-                    MessageBox.Show("Disconnected from peer to peer server successfully");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("error detected: " + ex);
-                }
-            }  
-
+                    lbxMsgLog.Items.Add(message);
+                }));
+            }
+            else
+            {
+                lbxMsgLog.Items.Add(message);
+            }
         }
     }
 }
