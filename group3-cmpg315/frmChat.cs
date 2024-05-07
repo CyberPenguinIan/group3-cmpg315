@@ -1,49 +1,36 @@
 ﻿using System;
+using System.Data;
+using System.Data.SQLite;
 using System.Drawing;
+using System.IO;
 using System.Net;
-using System.Windows.Forms;
-using System.Net.Sockets;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace group3_cmpg315
 {
+    // Class to hold global variables
+    
+
     public partial class frmChat : Form
     {
         
+        private const string connectionString = "Data Source=chat.db;Version=3;";
+        
+        
+        private const string dbFilePath = "chat.db";
 
         [Obsolete]
         public frmChat()
         {
             InitializeComponent();
-
         }
 
-        private bool connected = false;
-        private bool gConnected = false;
-        private bool ptpConnected = false;
-
-        private TcpClient clientSocket;
-        private Thread receiveThread;
-
-        string p2pIP = string.Empty;
-        string username = string.Empty;
-        string userIP = string.Empty;
-
-        public static class Globals//creating global var class
+        public static class Globals
         {
-            public static string hostName = Dns.GetHostName(); //accessing hostname
-            [Obsolete]
-            public static string IP = Dns.GetHostByName(hostName).AddressList[0].ToString(); //accessing IP-address of hostname
-
+            public static string hostName = Dns.GetHostName();
         }
 
-        private void btnAddContact_Click(object sender, EventArgs e)
-        {
-            AddContacts f2 = new AddContacts();
-            f2.Show();
-        }
-
-        [Obsolete]
         private void frmChat_Load(object sender, EventArgs e)
         {
             lblUserName.Text = Globals.hostName;
@@ -52,11 +39,17 @@ namespace group3_cmpg315
             txtMessageToSend.ForeColor = Color.DarkGray;
             try
             {
-                // Create an instance of the Server class
+                //CheckDatabaseExistence(); het maar net gecheck of die DB bestaan
+
+                CreateDatabase();
+
+                PopulateDataGridView();
+
+                // Create an instance of the P2PServer class
                 P2PServer server = new P2PServer("127.0.0.1", 11000);
 
                 // Start the server in a new thread
-                System.Threading.Thread serverThread = new System.Threading.Thread(() =>
+                Thread serverThread = new Thread(() =>
                 {
                     server.Start();
                 });
@@ -71,53 +64,82 @@ namespace group3_cmpg315
             }
         }
 
-
-        private void txtMessageToSend_Click(object sender, EventArgs e)
+        private void CheckDatabaseExistence()
         {
-            txtMessageToSend.Text = String.Empty;//empties text box on click
-            txtMessageToSend.ForeColor = Color.White;
-        }
-
-        private void txtMessageToSend_Leave(object sender, EventArgs e)
-        {
-            txtMessageToSend.Text = "Type your message here...";//setting texbox back to original state
-            txtMessageToSend.ForeColor = Color.DarkGray;
-        }
-
-        private void frmChat_Shown(object sender, EventArgs e)
-        {
-            MessageBox.Show("WELCOME "+Globals.hostName);
-        }
-
-
-        private void txtMessageToSend_MouseEnter(object sender, EventArgs e)
-        {
-            txtMessageToSend.ForeColor = Color.White;
-        }
-
-        private void txtMessageToSend_MouseLeave(object sender, EventArgs e)
-        {
-            txtMessageToSend.ForeColor = Color.DarkGray;
-        }
-
-        private void frmChat_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            try
+            if (File.Exists(dbFilePath))
             {
-                P2PServer server = new P2PServer("127.0.0.1", 11000);
-                server.Stop();
-                MessageBox.Show("SERVER CONNECTION TERMINATED");
+                Console.WriteLine("SQLite database file exists.");
             }
-            catch(Exception ex)
+            else
             {
-                MessageBox.Show("SERVER TERMINATION UNSUCCESSFUL");
-                Console.WriteLine(ex);
+                Console.WriteLine("SQLite database file does not exist.");
             }
-           
         }
+
+        private void PopulateDataGridView()
+        {
+            string query = "SELECT User_Name FROM Contacts;";
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, connection))
+                {
+                    DataTable dataTable = new DataTable();
+                    adapter.Fill(dataTable);
+                    dgvContacts.DataSource = dataTable;
+                }
+            }
+        }
+
+
+        private void CreateDatabase()
+        {
+            string createTableQuery = @"
+                CREATE TABLE IF NOT EXISTS Contacts (
+                    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    User_Name TEXT NOT NULL,
+                    IP_Address TEXT NOT NULL,
+                    Port TEXT NOT NULL
+                );
+            ";
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand(createTableQuery, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void PrintAllContacts()
+        {
+            string query = "SELECT * FROM Contacts;";
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string userName = reader["User_Name"].ToString();
+                            string ipAddress = reader["IP_Address"].ToString();
+                            string port = reader["Port"].ToString();
+
+                            Console.WriteLine($"Name: {userName}, IP Address: {ipAddress}, Port: {port}");
+                        }
+                    }
+                }
+            }
+        }
+
+
         public void P2PServer_MessageReceived(object sender, string message)
         {
-            // Invoke on UI thread if needed
             if (lbxMsgLog.InvokeRequired)
             {
                 lbxMsgLog.Invoke(new Action(() =>
@@ -131,11 +153,84 @@ namespace group3_cmpg315
             }
         }
 
+        private void txtMessageToSend_Click(object sender, EventArgs e)
+        {
+            txtMessageToSend.Text = String.Empty;
+            txtMessageToSend.ForeColor = Color.White;
+        }
+
+        private void txtMessageToSend_Leave(object sender, EventArgs e)
+        {
+            txtMessageToSend.Text = "Type your message here...";
+            txtMessageToSend.ForeColor = Color.DarkGray;
+        }
+
+        private void txtMessageToSend_MouseEnter(object sender, EventArgs e)
+        {
+            txtMessageToSend.ForeColor = Color.White;
+        }
+
+        private void txtMessageToSend_MouseLeave(object sender, EventArgs e)
+        {
+            txtMessageToSend.ForeColor = Color.DarkGray;
+        }
+
+        private void frmChat_Shown(object sender, EventArgs e)
+        {
+            MessageBox.Show("WELCOME " + Globals.hostName);
+        }
+
+        private void frmChat_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                P2PServer server = new P2PServer("127.0.0.1", 11000);
+                server.Stop();
+                MessageBox.Show("SERVER CONNECTION TERMINATED");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("SERVER TERMINATION UNSUCCESSFUL");
+                Console.WriteLine(ex);
+            }
+        }
+
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
+            string message = txtMessageToSend.Text;
+            string recipient = lblChatRecip.Text; // Assuming you have a recipient label
+            string senderName = Globals.hostName; // Renamed to senderName to avoid conflict
+
+            InsertMessage(senderName, recipient, message);
+
             P2PServer server = new P2PServer("127.0.0.1", 11000);
-            //dummy value 
-            server.SendMessage("127.0.0.1", 11001, txtMessageToSend.Text);
+            server.SendMessage("127.0.0.1", 11001, message);
+        }
+
+        private void InsertMessage(string sender, string recipient, string message)
+        {
+            string insertQuery = "INSERT INTO Messages (Sender, Recipient, Message) VALUES (@Sender, @Recipient, @Message);";
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Sender", sender);
+                    command.Parameters.AddWithValue("@Recipient", recipient);
+                    command.Parameters.AddWithValue("@Message", message);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void btnAddContact_Click(object sender, EventArgs e)
+        {
+            
+            AddContacts addContactsForm = new AddContacts();
+            addContactsForm.ShowDialog();
         }
     }
 }
