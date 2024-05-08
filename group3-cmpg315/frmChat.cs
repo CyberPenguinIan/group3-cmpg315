@@ -218,11 +218,41 @@ namespace group3_cmpg315
             string recipient = lblChatRecip.Text; // recipient label used for reciepient name
             string senderName = Globals.hostName; // Renamed to senderName to avoid conflict
             P2PServer server = new P2PServer(Globals.IP, 11000);
+            if (dgvContacts.SelectedRows.Count > 1)
+            {
+
+                int dgvcount = dgvContacts.SelectedRows.Count;
+                
+                string[] ipaddresses = new string[dgvContacts.SelectedRows.Count];
+                int i = 0;
+
+                foreach(DataGridViewRow row in dgvContacts.SelectedRows)
+                {
+                    ipaddresses[i] = row.Cells[1].Value.ToString();
+                    i++;
+                }
+                Console.WriteLine(ipaddresses);
+
+                foreach(string ip in ipaddresses)
+                {
+                    // Start the server in a new thread
+                    Thread serverThread = new Thread(() =>
+                    {
+                        server.Start();
+                    });
+                    serverThread.Start();
+                    server.MessageReceived += P2PServer_MessageReceived;
+                    server.SendMessage(ip, 11000, message);
+                    server.Stop();
+                }
+
+            }
+            
             if (message != " ")
             {
                 lbxMsgLog.Items.Add(senderName + ": " + message);
                 
-                server.SendMessage(Globals.IP/*This should be receiver ip*/, 11000, message);
+                server.SendMessage(Globals.SelectedContactIP, 11000, message);
             }
             else
             {
@@ -318,25 +348,3 @@ namespace group3_cmpg315
         }
     }
 }
-//code for multple TCP connections 
-/*using System;
-
-
-Console.WriteLine("Enter the message to send:");
-string message = Console.ReadLine();
-
-Console.WriteLine("Enter the IP addresses to send the message to (separated by commas):");
-string[] ipAddresses = Console.ReadLine().Split(',');
-
-foreach (string ipAddress in ipAddresses)
-{
-    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), 80);
-    socket.Connect(endPoint);
-    byte[] messageBytes = Encoding.ASCII.GetBytes(message);
-    socket.Send(messageBytes);
-    socket.Close();
-}
-
-Console.WriteLine("Messages sent to all IP addresses.");
-*/
