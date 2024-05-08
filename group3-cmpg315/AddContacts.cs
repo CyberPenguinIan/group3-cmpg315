@@ -13,12 +13,17 @@ namespace group3_cmpg315
 {
     public partial class AddContacts : Form
     {
-        
+
+        private frmChat parentForm;
+        public delegate void ContactAddedEventHandler(object sender, EventArgs e);
+        public event ContactAddedEventHandler ContactAdded;
+
         private const string connectionString = "Data Source=chat.db;Version=3;";
 
-        public AddContacts()
+        public AddContacts(frmChat parentForm)
         {
             InitializeComponent();
+            this.parentForm = parentForm; 
         }
 
         private void btnCreateContact_Click(object sender, EventArgs e)
@@ -33,6 +38,10 @@ namespace group3_cmpg315
                 {
                     InsertContact(newName, newIP, newPort);
                     MessageBox.Show("Contact added successfully.");
+
+                    parentForm.frmChat_Load(this, EventArgs.Empty);
+                    OnContactAdded(EventArgs.Empty);
+                    this.Close(); 
                 }
                 catch (Exception ex)
                 {
@@ -70,6 +79,12 @@ namespace group3_cmpg315
         }
 
         
+        protected virtual void OnContactAdded(EventArgs e)
+        {
+            ContactAdded?.Invoke(this, e);
+        }
+
+
         private void AddContacts_Load(object sender, EventArgs e)
         {
             

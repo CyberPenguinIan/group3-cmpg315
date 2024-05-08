@@ -37,7 +37,7 @@ namespace group3_cmpg315
 
         }
 
-        private void frmChat_Load(object sender, EventArgs e)
+        public void frmChat_Load(object sender, EventArgs e)
         {
             /*foreach (DataGridViewRow row in dgvContacts.Rows)
             {
@@ -56,9 +56,6 @@ namespace group3_cmpg315
             CreateDatabase();
 
             PopulateDataGridView();
-
-
-
         }
 
         private void DisplaySelectedContact()
@@ -86,7 +83,7 @@ namespace group3_cmpg315
             }
         }
 
-        private void PopulateDataGridView()
+        public void PopulateDataGridView()
         {
             string query = "SELECT User_Name, IP_Address, Port FROM Contacts;";
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -222,7 +219,7 @@ namespace group3_cmpg315
             {
                 lbxMsgLog.Items.Add(senderName + ": " + message);
                 
-                server.SendMessage(Globals.IP/*This should be receiver ip*/, 11000, message);
+                server.SendMessage(Globals.SelectedContactIP/*This should be receiver ip*/, 11000, message);
             }
             else
             {
@@ -259,8 +256,7 @@ namespace group3_cmpg315
 
         private void btnAddContact_Click(object sender, EventArgs e)
         {
-
-            AddContacts addContactsForm = new AddContacts();
+            AddContacts addContactsForm = new AddContacts(this);
             addContactsForm.ShowDialog();
         }
 
