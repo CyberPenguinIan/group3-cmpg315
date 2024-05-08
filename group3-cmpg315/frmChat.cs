@@ -4,9 +4,11 @@ using System.Data.SQLite;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using System.Text;
 
 namespace group3_cmpg315
 {
@@ -14,61 +16,49 @@ namespace group3_cmpg315
     {
 
         private const string connectionString = "Data Source=chat.db;Version=3;";
-
-
         private const string dbFilePath = "chat.db";
 
         [Obsolete]
         public frmChat()
         {
             InitializeComponent();
-            dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
+            //dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
         }
 
         public static class Globals
         {
             public static string hostName = Dns.GetHostName();
             public static string IP = Dns.GetHostByName(hostName).AddressList[0].ToString();
-            public static string SelectedContactIP { get; set; } 
+            public static string SelectedContactIP { get; set; }
             public static string SelectedContactPort { get; set; }
+            public static string SelectedContactName { get; set; }
+            public static string s_sender;
+
+
         }
 
         private void frmChat_Load(object sender, EventArgs e)
         {
+            /*foreach (DataGridViewRow row in dgvContacts.Rows)
+            {
+                row.Selected = false;
+            }*/
             Console.WriteLine("User_IP-Address: " + Globals.IP);
             lblUserName.Text = Globals.hostName;
             lblChatRecip.Text = string.Empty;
             dgvContacts.Enabled = true;
             dgvContacts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
-
+            
 
             txtMessageToSend.ForeColor = Color.DarkGray;
-            try
-            {
-                //CheckDatabaseExistence(); het maar net gecheck of die DB bestaan
 
-                CreateDatabase();
+            CreateDatabase();
 
-                PopulateDataGridView();
+            PopulateDataGridView();
 
-                // Create an instance of the P2PServer class
-                P2PServer server = new P2PServer("127.0.0.1", 11000);
 
-                // Start the server in a new thread
-                Thread serverThread = new Thread(() =>
-                {
-                    server.Start();
-                });
-                serverThread.Start();
-                MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
-                server.MessageReceived += P2PServer_MessageReceived;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("SERVER CONNECTION UNSUCCESSFUL");
-                Console.WriteLine(ex);
-            }
+
         }
 
         private void DisplaySelectedContact()
@@ -162,14 +152,16 @@ namespace group3_cmpg315
             }
         }
 
-
+        
         public void P2PServer_MessageReceived(object sender, string message)
         {
             if (lbxMsgLog.InvokeRequired)
             {
                 lbxMsgLog.Invoke(new Action(() =>
                 {
-                    lbxMsgLog.Items.Add(message);
+                    lbxMsgLog.BorderStyle = BorderStyle.Fixed3D;
+                    lbxMsgLog.Items.Add(Globals.SelectedContactName+": "+message);
+                    
                 }));
             }
             else
@@ -186,8 +178,7 @@ namespace group3_cmpg315
 
         private void txtMessageToSend_Leave(object sender, EventArgs e)
         {
-            txtMessageToSend.Text = "Type your message here...";
-            txtMessageToSend.ForeColor = Color.DarkGray;
+            
         }
 
         private void txtMessageToSend_MouseEnter(object sender, EventArgs e)
@@ -210,7 +201,7 @@ namespace group3_cmpg315
         {
             try
             {
-                P2PServer server = new P2PServer("127.0.0.1", 11000);
+                P2PServer server = new P2PServer(Globals.IP, 11000);
                 server.Stop();
                 MessageBox.Show("SERVER CONNECTION TERMINATED");
             }
@@ -224,15 +215,29 @@ namespace group3_cmpg315
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
             string message = txtMessageToSend.Text;
-            string recipient = lblChatRecip.Text; // Assuming you have a recipient label
+            string recipient = lblChatRecip.Text; // recipient label used for reciepient name
             string senderName = Globals.hostName; // Renamed to senderName to avoid conflict
+            P2PServer server = new P2PServer(Globals.IP, 11000);
+            if (message != " ")
+            {
+                lbxMsgLog.Items.Add(senderName + ": " + message);
+                
+                server.SendMessage(Globals.IP/*This should be receiver ip*/, 11000, message);
+            }
+            else
+            {
+                MessageBox.Show("Type a message");
+            }
+            //InsertMessage(senderName, recipient, message);
 
-            InsertMessage(senderName, recipient, message);
+            
 
-            P2PServer server = new P2PServer("127.0.0.1", 11000);
-            server.SendMessage("127.0.0.1", 11001, message);
+            txtMessageToSend.Text = "Type your message here...";
+            txtMessageToSend.ForeColor = Color.DarkGray;
+            Console.WriteLine(Globals.SelectedContactName);
         }
 
+        /*
         private void InsertMessage(string sender, string recipient, string message)
         {
             string insertQuery = "INSERT INTO Messages (Sender, Recipient, Message) VALUES (@Sender, @Recipient, @Message);";
@@ -250,7 +255,7 @@ namespace group3_cmpg315
                     command.ExecuteNonQuery();
                 }
             }
-        }
+        }*/
 
         private void btnAddContact_Click(object sender, EventArgs e)
         {
@@ -261,13 +266,21 @@ namespace group3_cmpg315
 
         private void dgvContacts_SelectionChanged(object sender, EventArgs e)
         {
+            P2PServer server = new P2PServer(Globals.IP, 11000);
+            server.Stop();
+            //dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
             //werk in die if statement
             if (dgvContacts.SelectedRows.Count > 0)
             {
                 DataGridViewRow selectedRow = dgvContacts.SelectedRows[0];
-                string selectedContactIP = selectedRow.Cells["IP_Address"].Value.ToString();
-                string selectedContactPort = selectedRow.Cells["Port"].Value.ToString();
-                Console.WriteLine($"Selected Contact IP: {selectedContactIP}, Port: {selectedContactPort}");
+                Globals.SelectedContactIP = selectedRow.Cells["IP_Address"].Value.ToString();
+                Globals.SelectedContactPort = selectedRow.Cells["Port"].Value.ToString();
+                Globals.SelectedContactName = selectedRow.Cells["User_Name"].Value.ToString();
+                Console.WriteLine($"Selected Contact IP: {Globals.SelectedContactIP}, Port: {Globals.SelectedContactPort}");
+                lbxMsgLog.Items.Clear();
+
+
+
             }
             else
             {
@@ -275,5 +288,55 @@ namespace group3_cmpg315
             }
         }
 
+        private void dgvContacts_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            
+        }
+
+        private void dgvContacts_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            try
+            {
+
+                // Create an instance of the P2PServer class
+                P2PServer server = new P2PServer(Globals.IP, 11000);
+
+                // Start the server in a new thread
+                Thread serverThread = new Thread(() =>
+                {
+                    server.Start();
+                });
+                serverThread.Start();
+                MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
+                server.MessageReceived += P2PServer_MessageReceived;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("SERVER CONNECTION UNSUCCESSFUL");
+                Console.WriteLine(ex);
+            }
+        }
     }
 }
+//code for multple TCP connections 
+/*using System;
+
+
+Console.WriteLine("Enter the message to send:");
+string message = Console.ReadLine();
+
+Console.WriteLine("Enter the IP addresses to send the message to (separated by commas):");
+string[] ipAddresses = Console.ReadLine().Split(',');
+
+foreach (string ipAddress in ipAddresses)
+{
+    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), 80);
+    socket.Connect(endPoint);
+    byte[] messageBytes = Encoding.ASCII.GetBytes(message);
+    socket.Send(messageBytes);
+    socket.Close();
+}
+
+Console.WriteLine("Messages sent to all IP addresses.");
+*/

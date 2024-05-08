@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 
 class P2PServer
 {
@@ -15,7 +16,7 @@ class P2PServer
     public P2PServer(string ipAddress, int port)
     {
         // Establish the local endpoint for the socket.
-        _localEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
+       _localEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
 
         // Create a TCP/IP socket.
         _listener = new Socket(_localEndPoint.AddressFamily,
@@ -24,6 +25,7 @@ class P2PServer
 
     public void Start()
     {
+
         try
         {
             // Bind the socket to the local endpoint and listen for incoming connections.
@@ -38,6 +40,7 @@ class P2PServer
                 // Program is suspended while waiting for an incoming connection.
                 Socket handler = _listener.Accept();
                 Console.WriteLine("Connected!");
+               
 
                 // Start a new thread to handle the client communication.
                 Thread clientThread = new Thread(() =>
@@ -65,7 +68,7 @@ class P2PServer
             {
                 int bytesRec = handler.Receive(bytes);
                 data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                if (data.IndexOf("<EOF>") > -1)
+                if (data.IndexOf("   ") > -1)
                 {
                     break;
                 }
@@ -96,7 +99,7 @@ class P2PServer
             sender.Connect(remoteEndPoint);
             Console.WriteLine("Connected to {0}", sender.RemoteEndPoint.ToString());
 
-            byte[] msg = Encoding.ASCII.GetBytes(message + "<EOF>");
+            byte[] msg = Encoding.ASCII.GetBytes(message + "   ");
             sender.Send(msg);
 
             sender.Shutdown(SocketShutdown.Both);
@@ -106,6 +109,15 @@ class P2PServer
     public void Stop()
     {
         // Stop listening for new clients.
-        _listener.Close();
+        if (_listener != null && _listener.IsBound)
+        {
+            _listener.Shutdown(SocketShutdown.Both);
+            _listener.Close();
+            _listener = null;
+            Console.WriteLine("Server stopped");
+        }
+
+        
+
     }
 }
