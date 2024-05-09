@@ -252,8 +252,6 @@ namespace group3_cmpg315
 
                 server.SendMessage(Globals.SelectedContactIP, 11000, message);
 
-                server.SendMessage(Globals.SelectedContactIP/*This should be receiver ip*/, 11000, message);
-
             }
             else
             {
