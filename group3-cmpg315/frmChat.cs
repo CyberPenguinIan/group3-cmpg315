@@ -34,6 +34,8 @@ namespace group3_cmpg315
             public static string SelectedContactName { get; set; }
             public static string s_sender;
 
+            public static Thread serverThread;
+
 
         }
 
@@ -50,11 +52,11 @@ namespace group3_cmpg315
                 P2PServer server = new P2PServer(Globals.IP, 11000);
 
                 // Start the server in a new thread
-                Thread serverThread = new Thread(() =>
+                Globals.serverThread = new Thread(() =>
                 {
                     server.Start();
                 });
-                serverThread.Start();
+                Globals.serverThread.Start();
                 MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
                 server.MessageReceived += P2PServer_MessageReceived;
             }
@@ -237,7 +239,7 @@ namespace group3_cmpg315
             P2PServer server = new P2PServer(Globals.IP, 11000);
             if (dgvContacts.SelectedRows.Count > 1)
             {
-
+                lbxMsgLog.Items.Add(senderName + ": " + message);
                 int dgvcount = dgvContacts.SelectedRows.Count;
                 
                 string[] ipaddresses = new string[dgvContacts.SelectedRows.Count];
@@ -264,11 +266,9 @@ namespace group3_cmpg315
 
                 }
 
-                
-
             }
             
-            if (message != " ")
+            else if (message != " ")
             {
                 lbxMsgLog.Items.Add(senderName + ": " + message);
                 
