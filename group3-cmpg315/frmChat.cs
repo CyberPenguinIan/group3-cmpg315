@@ -43,6 +43,26 @@ namespace group3_cmpg315
             {
                 row.Selected = false;
             }*/
+            try
+            {
+
+                // Create an instance of the P2PServer class
+                P2PServer server = new P2PServer(Globals.IP, 11000);
+
+                // Start the server in a new thread
+                Thread serverThread = new Thread(() =>
+                {
+                    server.Start();
+                });
+                serverThread.Start();
+                MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
+                server.MessageReceived += P2PServer_MessageReceived;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("SERVER CONNECTION UNSUCCESSFUL");
+                Console.WriteLine(ex);
+            }
             Console.WriteLine("User_IP-Address: " + Globals.IP);
             lblUserName.Text = Globals.hostName;
             lblChatRecip.Text = string.Empty;
@@ -228,20 +248,23 @@ namespace group3_cmpg315
                     ipaddresses[i] = row.Cells[1].Value.ToString();
                     i++;
                 }
-                Console.WriteLine(ipaddresses);
-
-                foreach(string ip in ipaddresses)
+                Console.WriteLine("//////////////////////////////////////////////////////////");
+                foreach (string ip in ipaddresses)
                 {
-                    // Start the server in a new thread
+                    Console.WriteLine("Sending: "+ ip);
                     Thread serverThread = new Thread(() =>
                     {
                         server.Start();
                     });
                     serverThread.Start();
-                    server.MessageReceived += P2PServer_MessageReceived;
+                    int selrow = dgvContacts.SelectedRows[0].Index;
+                    //server.MessageReceived += P2PServer_MessageReceived;
                     server.SendMessage(ip, 11000, message);
                     server.Stop();
+
                 }
+
+                
 
             }
             
@@ -323,9 +346,10 @@ namespace group3_cmpg315
 
         private void dgvContacts_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            /*
             try
             {
-
+                
                 // Create an instance of the P2PServer class
                 P2PServer server = new P2PServer(Globals.IP, 11000);
 
@@ -342,7 +366,7 @@ namespace group3_cmpg315
             {
                 MessageBox.Show("SERVER CONNECTION UNSUCCESSFUL");
                 Console.WriteLine(ex);
-            }
+            }*/
         }
     }
 }
