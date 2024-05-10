@@ -159,7 +159,7 @@
             this.lbxMsgLog.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.lbxMsgLog.Name = "lbxMsgLog";
             this.lbxMsgLog.Size = new System.Drawing.Size(765, 401);
-            this.lbxMsgLog.TabIndex = 3;
+            this.lbxMsgLog.TabIndex = 0;
             // 
             // txtMessageToSend
             // 
@@ -231,9 +231,9 @@
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label lblChatRecip;
         private System.Windows.Forms.Panel pnlChatRecipient;
-        private System.Windows.Forms.ListBox lbxMsgLog;
         private System.Windows.Forms.TextBox txtMessageToSend;
         private System.Windows.Forms.Button btnSendMessage;
+        public System.Windows.Forms.ListBox lbxMsgLog;
     }
 }
 

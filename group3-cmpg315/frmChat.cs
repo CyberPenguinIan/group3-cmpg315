@@ -24,7 +24,8 @@ namespace group3_cmpg315
         public frmChat()
         {
             InitializeComponent();
-            //dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
+            dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
+
         }
 
         public static class Globals
@@ -45,10 +46,8 @@ namespace group3_cmpg315
 
         public void frmChat_Load(object sender, EventArgs e)
         {
-            /*foreach (DataGridViewRow row in dgvContacts.Rows)
-            {
-                row.Selected = false;
-            }*/
+            lbxMsgLog.DrawItem += listBox1_DrawItem;
+
             try
             {
 
@@ -76,11 +75,7 @@ namespace group3_cmpg315
             dgvContacts.Enabled = true;
             dgvContacts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
-
-            
-            
-            
-
+           
             txtMessageToSend.ForeColor = Color.DarkGray;
 
             CreateDatabase();
@@ -189,7 +184,9 @@ namespace group3_cmpg315
                 lbxMsgLog.Invoke(new Action(() =>
                 {
                     lbxMsgLog.BorderStyle = BorderStyle.Fixed3D;
+                    //lbxMsgLog.Items.Add(" ");
                     lbxMsgLog.Items.Add(hostName + ": " + message);
+                    
    
                 }));
             }
@@ -225,6 +222,7 @@ namespace group3_cmpg315
             MessageBox.Show("WELCOME " + Globals.hostName);
             MessageBox.Show("YOUR CURRENT IP ADDRESS IS: " + Globals.IP);
             
+
         }
 
         private void frmChat_FormClosing(object sender, FormClosingEventArgs e)
@@ -329,9 +327,23 @@ namespace group3_cmpg315
             AddContacts addContactsForm = new AddContacts(this);
             addContactsForm.ShowDialog();
         }
+        private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            Font font = new Font("Arial", 20, FontStyle.Bold);
+            Brush brush = Brushes.Black;
+            e.DrawBackground();
+            e.Graphics.DrawString(lbxMsgLog.Items[0].ToString(), font, brush, e.Bounds);
+            e.DrawFocusRectangle();
+        }
 
         private void dgvContacts_SelectionChanged(object sender, EventArgs e)
         {
+            
+            lbxMsgLog.Items.Clear();
+            lbxMsgLog.Items.Add("CONNECTION MADE TO: " + Globals.SelectedContactName);
+            int padding = (lbxMsgLog.Width - lbxMsgLog.GetItemRectangle(0).Width) / 2;
+            lbxMsgLog.Items[0] = String.Format("{0," + padding + "}", lbxMsgLog.Items[0]);
+            lbxMsgLog.Items.Add("---------------------------------------------------------------------------------------------------------------------------------------------------");
             lblChatRecip.Text = Globals.SelectedContactName;
             P2PServer server = new P2PServer(Globals.IP, 11000);
             server.Stop();
@@ -344,7 +356,7 @@ namespace group3_cmpg315
                 Globals.SelectedContactPort = selectedRow.Cells["Port"].Value.ToString();
                 Globals.SelectedContactName = selectedRow.Cells["User_Name"].Value.ToString();
                 Console.WriteLine($"Selected Contact IP: {Globals.SelectedContactIP}, Port: {Globals.SelectedContactPort}");
-                lbxMsgLog.Items.Clear();
+                
 
 
 
