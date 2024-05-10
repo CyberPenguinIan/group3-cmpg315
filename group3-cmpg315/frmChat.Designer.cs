@@ -92,8 +92,6 @@
             this.dgvContacts.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dgvContacts.Size = new System.Drawing.Size(233, 433);
             this.dgvContacts.TabIndex = 0;
-            this.dgvContacts.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvContacts_CellClick);
-            this.dgvContacts.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvContacts_CellContentClick);
             // 
             // btnAddContact
             // 

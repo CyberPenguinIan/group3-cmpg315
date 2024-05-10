@@ -9,6 +9,8 @@ using System.Threading;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using System.Text;
+using System.Runtime.InteropServices;
+using System.Xml.Linq;
 
 namespace group3_cmpg315
 {
@@ -32,7 +34,9 @@ namespace group3_cmpg315
             public static string SelectedContactIP { get; set; }
             public static string SelectedContactPort { get; set; }
             public static string SelectedContactName { get; set; }
-            public static string s_sender;
+            public static string reciever_name { get; set; }
+
+            public static string s_sender = "";
 
             public static Thread serverThread;
 
@@ -58,6 +62,7 @@ namespace group3_cmpg315
                 });
                 Globals.serverThread.Start();
                 MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
+              
                 server.MessageReceived += P2PServer_MessageReceived;
             }
             catch (Exception ex)
@@ -71,6 +76,9 @@ namespace group3_cmpg315
             dgvContacts.Enabled = true;
             dgvContacts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
+
+            
+            
             
 
             txtMessageToSend.ForeColor = Color.DarkGray;
@@ -176,11 +184,13 @@ namespace group3_cmpg315
         {
             if (lbxMsgLog.InvokeRequired)
             {
+                IPHostEntry hostEntry = Dns.GetHostByAddress(Globals.SelectedContactIP);
+                string hostName = hostEntry.HostName;
                 lbxMsgLog.Invoke(new Action(() =>
                 {
                     lbxMsgLog.BorderStyle = BorderStyle.Fixed3D;
-                    lbxMsgLog.Items.Add(Globals.SelectedContactName+": "+message);
-                    
+                    lbxMsgLog.Items.Add(hostName + ": " + message);
+   
                 }));
             }
             else
@@ -214,6 +224,7 @@ namespace group3_cmpg315
         {
             MessageBox.Show("WELCOME " + Globals.hostName);
             MessageBox.Show("YOUR CURRENT IP ADDRESS IS: " + Globals.IP);
+            
         }
 
         private void frmChat_FormClosing(object sender, FormClosingEventArgs e)
@@ -237,33 +248,37 @@ namespace group3_cmpg315
             string recipient = lblChatRecip.Text; // recipient label used for reciepient name
             string senderName = Globals.hostName; // Renamed to senderName to avoid conflict
             P2PServer server = new P2PServer(Globals.IP, 11000);
+            
             if (dgvContacts.SelectedRows.Count > 1)
             {
                 lbxMsgLog.Items.Add(senderName + ": " + message);
                 int dgvcount = dgvContacts.SelectedRows.Count;
-                
-                string[] ipaddresses = new string[dgvContacts.SelectedRows.Count];
+
+                 
+                string[] ipaddresses = new string[dgvcount];
                 int i = 0;
 
                 foreach(DataGridViewRow row in dgvContacts.SelectedRows)
                 {
                     ipaddresses[i] = row.Cells[1].Value.ToString();
+                    
                     i++;
                 }
                 Console.WriteLine("//////////////////////////////////////////////////////////");
+                
                 foreach (string ip in ipaddresses)
                 {
-                    Console.WriteLine("Sending: "+ ip);
+                    
+                    Console.WriteLine("Sending message to: " + Globals.SelectedContactName + " at: " + ip);
                     Thread serverThread = new Thread(() =>
                     {
                         server.Start();
                     });
                     serverThread.Start();
-                    int selrow = dgvContacts.SelectedRows[0].Index;
+
                     //server.MessageReceived += P2PServer_MessageReceived;
                     server.SendMessage(ip, 11000, message);
-                    server.Stop();
-
+                    //server.Stop()
                 }
 
             }
@@ -317,6 +332,7 @@ namespace group3_cmpg315
 
         private void dgvContacts_SelectionChanged(object sender, EventArgs e)
         {
+            lblChatRecip.Text = Globals.SelectedContactName;
             P2PServer server = new P2PServer(Globals.IP, 11000);
             server.Stop();
             //dgvContacts.SelectionChanged += dgvContacts_SelectionChanged;
@@ -337,36 +353,6 @@ namespace group3_cmpg315
             {
                 Console.WriteLine("No contact selected.");
             }
-        }
-
-        private void dgvContacts_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            
-        }
-
-        private void dgvContacts_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            /*
-            try
-            {
-                
-                // Create an instance of the P2PServer class
-                P2PServer server = new P2PServer(Globals.IP, 11000);
-
-                // Start the server in a new thread
-                Thread serverThread = new Thread(() =>
-                {
-                    server.Start();
-                });
-                serverThread.Start();
-                MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
-                server.MessageReceived += P2PServer_MessageReceived;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("SERVER CONNECTION UNSUCCESSFUL");
-                Console.WriteLine(ex);
-            }*/
         }
     }
 }
