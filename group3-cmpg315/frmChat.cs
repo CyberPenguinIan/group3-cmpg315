@@ -60,7 +60,7 @@ namespace group3_cmpg315
                     server.Start();
                 });
                 Globals.serverThread.Start();
-                MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
+                //MessageBox.Show("SERVER CONNECTION SUCCESSFUL");
               
                 server.MessageReceived += P2PServer_MessageReceived;
             }
@@ -70,7 +70,7 @@ namespace group3_cmpg315
                 Console.WriteLine(ex);
             }
             Console.WriteLine("User_IP-Address: " + Globals.IP);
-            lblUserName.Text = Globals.hostName;
+            lblUserName.Text = Globals.hostName +"\n"+ Globals.IP;
             lblChatRecip.Text = string.Empty;
             dgvContacts.Enabled = true;
             dgvContacts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -219,8 +219,8 @@ namespace group3_cmpg315
 
         private void frmChat_Shown(object sender, EventArgs e)
         {
-            MessageBox.Show("WELCOME " + Globals.hostName);
-            MessageBox.Show("YOUR CURRENT IP ADDRESS IS: " + Globals.IP);
+           // MessageBox.Show("WELCOME " + Globals.hostName);
+           // MessageBox.Show("YOUR CURRENT IP ADDRESS IS: " + Globals.IP);
             
 
         }
@@ -231,7 +231,7 @@ namespace group3_cmpg315
             {
                 P2PServer server = new P2PServer(Globals.IP, 11000);
                 server.Stop();
-                MessageBox.Show("SERVER CONNECTION TERMINATED");
+                //MessageBox.Show("SERVER CONNECTION TERMINATED");
             }
             catch (Exception ex)
             {
