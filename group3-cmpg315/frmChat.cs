@@ -179,13 +179,13 @@ namespace group3_cmpg315
         {
             if (lbxMsgLog.InvokeRequired)
             {
-                IPHostEntry hostEntry = Dns.GetHostByAddress(Globals.SelectedContactIP);
-                string hostName = hostEntry.HostName;
+                //IPHostEntry hostEntry = Dns.GetHostByAddress(Globals.SelectedContactIP);
+                //string hostName = hostEntry.HostName;
                 lbxMsgLog.Invoke(new Action(() =>
                 {
                     lbxMsgLog.BorderStyle = BorderStyle.Fixed3D;
                     //lbxMsgLog.Items.Add(" ");
-                    lbxMsgLog.Items.Add(hostName + ": " + message);
+                    lbxMsgLog.Items.Add(Globals.SelectedContactName + ": " + message);
                     
    
                 }));
@@ -238,6 +238,8 @@ namespace group3_cmpg315
                 MessageBox.Show("SERVER TERMINATION UNSUCCESSFUL");
                 Console.WriteLine(ex);
             }
+            
+            Environment.Exit(0);
         }
 
         private void btnSendMessage_Click(object sender, EventArgs e)
@@ -340,7 +342,7 @@ namespace group3_cmpg315
         {
             
             lbxMsgLog.Items.Clear();
-            lbxMsgLog.Items.Add("CONNECTION MADE TO: " + Globals.SelectedContactName);
+            lbxMsgLog.Items.Add("CONNECTION MADE TO: " + Globals.SelectedContactIP);
             int padding = (lbxMsgLog.Width - lbxMsgLog.GetItemRectangle(0).Width) / 2;
             lbxMsgLog.Items[0] = String.Format("{0," + padding + "}", lbxMsgLog.Items[0]);
             lbxMsgLog.Items.Add("---------------------------------------------------------------------------------------------------------------------------------------------------");
@@ -356,10 +358,7 @@ namespace group3_cmpg315
                 Globals.SelectedContactPort = selectedRow.Cells["Port"].Value.ToString();
                 Globals.SelectedContactName = selectedRow.Cells["User_Name"].Value.ToString();
                 Console.WriteLine($"Selected Contact IP: {Globals.SelectedContactIP}, Port: {Globals.SelectedContactPort}");
-                
-
-
-
+            
             }
             else
             {
